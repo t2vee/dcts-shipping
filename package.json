@@ -3,25 +3,25 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "type": "module",
   "scripts": {
+    "start": "node bin/bootstrap",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "",
   "dependencies": {
     "colors": "^1.4.0",
-    "express": "^4.18.2",
-    "file-type": "^18.2.1",
+    "express": "^4.19.2",
+    "file-type": "^19.0.0",
     "form-data": "^4.0.0",
-    "get-folder-size": "^2.0.0",
+    "get-folder-size": "^4.0.0",
     "install": "^0.13.0",
     "mysql": "^2.18.1",
-    "node": "^19.8.1",
-    "node-fetch": "^2.6.9",
+    "node": "^20.15.0",
+    "node-fetch": "^3.3.2",
     "request": "^2.88.2",
-    "socket.io": "^4.6.1",
-    "uuid": "^9.0.0",
+    "socket.io": "^4.7.5",
+    "uuid": "^10.0.0",
     "xhr2": "^0.2.1"
   }
 }
