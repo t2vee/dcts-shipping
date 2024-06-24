@@ -18,7 +18,6 @@ var server; // = require('http').createServer(app)
 var FormData = require('form-data');
 
 const colors = require('colors');
-var request = require('request');
 const fileType = require("fix-esm").require('file-type');
 const getSize = require('get-folder-size');
 
@@ -5011,7 +5010,7 @@ function updateMember(){
     });
 }
 
-function isImgUrl(url) {
+/*function isImgUrl(url) {
     return new Promise((resolve, reject) => {
         return request( url, function (error, response, body) {
             if (!error && response.statusCode == 200) {
@@ -5034,6 +5033,17 @@ function isImgUrl(url) {
         });
     });
     //return /\.(jpg|jpeg|png|webp|avif|gif)$/.test(url)
+}*/
+function isImgUrl(url) {
+    return fetch(url, { method: 'HEAD' })
+        .then(response => {
+            if (response.ok) {
+                const contentType = response.headers.get('content-type');
+                return contentType && contentType.startsWith('image/');
+            }
+            return false;
+        })
+        .catch(() => false);
 }
 
 function linkify(text, messageid, roomid) {
