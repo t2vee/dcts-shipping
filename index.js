@@ -16,21 +16,11 @@ var server; // = require('http').createServer(app)
 
 
 var FormData = require('form-data');
-//const fetch = require('node-fetch')
-//import fetch from "node-fetch";
-
-//const getSize = require('get-folder-size');
-//var fileType = import("file-type")
-//import {fileTypeFromBuffer} from 'file-type';
-//const fileTypeFromBuffer = require('file-type')
-//import {channel} from "diagnostics_channel";
-const channel = require('diagnostics_channel')
 
 const colors = require('colors');
 var request = require('request');
-//const {fileTypeFromBuffer} = require("file-type");
-//const getFolderSize = require("get-folder-size");
-//require('whatwg-fetch')
+const fileType = require("fix-esm").require('file-type');
+const getSize = require('get-folder-size');
 
 var usersocket = []
 var userOldRoom = []
@@ -462,7 +452,7 @@ app.use(express.static('./public'));
 // Hier sagen wir Socket.io, dass wir informiert werden wollen,
 // wenn sich etwas bei den Verbindungen ("connections") zu
 // den Browsern tut.
-io.on('connection', function (socket) {
+io.on('connection', (socket) => {
 
     // Check if user ip is blacklisted
     var ip = socket.handshake.address;
@@ -3578,7 +3568,7 @@ io.on('connection', function (socket) {
         }
     });
 
-    socket.on("fileUpload", function(member, response) {
+    socket.on("fileUpload", async function (member, response) {
         checkRateLimit(socket);
 
         var filename;
@@ -3587,13 +3577,12 @@ io.on('connection', function (socket) {
 
         member.filename = member.filename.replaceAll(" ", "_");
 
-        if(member.type == null){
+        if (member.type == null) {
             localUploadPath = "./public/uploads";
             filename = "upload_" + fileId + "_" + escapeHtml(member.filename);
-        }
-        else if(member.type == "emoji"){
+        } else if (member.type == "emoji") {
 
-            if(!hasPermission(member.id, "manageEmojis")){
+            if (!hasPermission(member.id, "manageEmojis")) {
                 sendMessageToUser(socket.id, JSON.parse(
                     `{
                             "title": "Missing permissions!",
@@ -3620,7 +3609,7 @@ io.on('connection', function (socket) {
         var cloudflareToken = serverconfig.serverinfo.cfAccountToken;
         var cloudflareHash = serverconfig.serverinfo.cfHash;
 
-        if(!hasPermission(member.id, "uploadFiles")){
+        if (!hasPermission(member.id, "uploadFiles")) {
             sendMessageToUser(socket.id, JSON.parse(
                 `{
                             "title": "Missing permissions!",
@@ -3639,18 +3628,18 @@ io.on('connection', function (socket) {
             return;
         }
 
-        var { ext, mime } = fileTypeFromBuffer(member.file);
+        var {ext, mime} = await fileType.fileTypeFromBuffer(member.file);
 
-        fileTypeFromBuffer(member.file).then(filetype =>{
+        await fileType.fileTypeFromBuffer(member.file).then(filetype => {
             // File Mime: filetype.mime
             // File Extension: filetype.ext
-            if(filetype == null){
+            if (filetype == null) {
                 response({type: "error", msg: "Unkown MIME type!"});
                 return;
             }
 
             consolas("Upload File MIME Type: ".yellow + mime, "Debug");
-            if(serverconfig.serverinfo.uploadFileTypes.includes(filetype.mime)){
+            if (serverconfig.serverinfo.uploadFileTypes.includes(filetype.mime)) {
                 consolas("Upload File Extention Type: ".yellow + ext, "Debug");
 
                 if (validateMemberId(member.id, socket) == true &&
@@ -3681,7 +3670,10 @@ io.on('connection', function (socket) {
                             // Lets check the result
                             if (result.status == 200) {
                                 consolas("Uploaded url: " + `https://imagedelivery.net/${cloudflareHash}/${cloudname}/public`, "Debug");
-                                response({type: "success", msg: `https://imagedelivery.net/${cloudflareHash}/${cloudname}/public`});
+                                response({
+                                    type: "success",
+                                    msg: `https://imagedelivery.net/${cloudflareHash}/${cloudname}/public`
+                                });
                             } else {
                                 //response(result.code);
                                 response({type: "error", msg: result.code});
@@ -3693,7 +3685,9 @@ io.on('connection', function (socket) {
                         // We want images to be saved locally here
                     } else {
                         getSize(localUploadPath, (err, size) => {
-                            if (err) { throw err; }
+                            if (err) {
+                                throw err;
+                            }
 
                             //console.log(size + ' bytes');
                             var fileSizeMB = (size / 1024 / 1024).toFixed(2);
@@ -3701,11 +3695,10 @@ io.on('connection', function (socket) {
                             var userUpload = userRole.permissions.maxUpload;
 
 
-                            if(userUpload == null){
-                                if(hasPermission(member.id, "bypassUploadLimit")){
+                            if (userUpload == null) {
+                                if (hasPermission(member.id, "bypassUploadLimit")) {
                                     userUpload = 99999;
-                                }
-                                else{
+                                } else {
                                     response({type: "error", msg: "You are not allowed to upload files"});
                                     return;
                                 }
@@ -3713,10 +3706,10 @@ io.on('connection', function (socket) {
 
                             consolas("File Size in MB: " + fileSizeMB)
 
-                            if(fileSizeMB > userUpload){
-                                consolas("File Size was too big!" , "Debug");
-                                consolas(`File Size of upload: ${fileSizeMB}` , "Debug");
-                                consolas(`Max User Upload Size: ${ userRole.permissions.maxUpload}` , "Debug");
+                            if (fileSizeMB > userUpload) {
+                                consolas("File Size was too big!", "Debug");
+                                consolas(`File Size of upload: ${fileSizeMB}`, "Debug");
+                                consolas(`Max User Upload Size: ${userRole.permissions.maxUpload}`, "Debug");
 
                                 response({type: "error", msg: "File is too large"});
                                 return;
@@ -3727,35 +3720,36 @@ io.on('connection', function (socket) {
                             var currentFolderSize = Math.round((size / 1024 / 1024).toFixed(2));
 
 
-                            if(currentFolderSize < maxFolderSize){
+                            if (currentFolderSize < maxFolderSize) {
 
 
                                 consolas(`Member ${member.id} is uploading the file ${member.filename}`, "Debug");
                                 var error;
 
 
-                                try{
-                                    fs.writeFileSync(localUploadPath + "/" + filename, member.file, function(err) {
+                                try {
+                                    fs.writeFileSync(localUploadPath + "/" + filename, member.file, function (err) {
                                         error = err;
                                     });
-                                }
-                                catch(err){
+                                } catch (err) {
                                     error = err;
                                 }
 
 
                                 // IF everything worked out well, we can check if we want to
                                 // upload it to cloudflare or not
-                                if(error == null){
+                                if (error == null) {
                                     consolas("Image is being uploaded to local server", "Debug");
-                                    response({type: "success", msg: localUploadPath.replace("./public", "") + "/" + filename});
+                                    response({
+                                        type: "success",
+                                        msg: localUploadPath.replace("./public", "") + "/" + filename
+                                    });
 
                                     return;
                                 }
 
                                 response({type: "error", msg: error});
-                            }
-                            else{
+                            } else {
                                 consolas(`Cannot upload file! Max Upload Size Limit ${maxFolderSize}MB reached!`.yellow);
                                 response({type: "error", msg: "Server's max. upload limit reached"});
                             }
@@ -3764,8 +3758,7 @@ io.on('connection', function (socket) {
                         });
                     }
                 }
-            }
-            else{
+            } else {
                 response({type: "error", msg: "This file type is not allowed on the server"});
                 consolas("File Type for upload not allowed. File Type: " + filetype.mime)
             }
