@@ -11,4 +11,4 @@ COPY . .
 
 EXPOSE 2052
 
-CMD ["node", "."]
+CMD ["npm", "start"]

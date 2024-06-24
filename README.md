@@ -32,7 +32,7 @@ Requires node.js to be installed, see [Tested Versions](https://github.com/t2vee
 ```
 $ git clone https://github.com/hackthedev/dcts-shipping --depth 1
 $ npm install
-$ node .
+$ npm start
 ```
 
 <br>
