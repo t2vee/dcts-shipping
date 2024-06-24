@@ -14,7 +14,6 @@ function addRoleFromProfile(userId){
     });
 }
 
-<<<<<<< HEAD
 socket.on('connect', () => {
 
     navigator.mediaDevices.getUserMedia({ audio: true, video: false })
@@ -72,11 +71,6 @@ socket.on('audioStream', (audioData) => {
     audio.play();
 });
 
-
-
-
-=======
->>>>>>> parent of 1fecc67 (early implementation of vc)
 function setCookie(name,value,days) {
     var expires = "";
     if (days) {
