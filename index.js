@@ -1,8 +1,8 @@
 // express und http Module importieren. Sie sind dazu da, die HTML-Dateien
 // aus dem Ordner "public" zu veröffentlichen.
 
-import {createRequire} from "module";
-const require = createRequire(import.meta.url)
+//import {createRequire} from "module";
+//const require = createRequire(import.meta.url)
 
 var express = require('express');
 var app = express();
@@ -16,14 +16,20 @@ var server; // = require('http').createServer(app)
 
 
 var FormData = require('form-data');
-const fetch = require('node-fetch')
-const getSize = require('get-folder-size');
+//const fetch = require('node-fetch')
+//import fetch from "node-fetch";
+
+//const getSize = require('get-folder-size');
 //var fileType = import("file-type")
-import {fileTypeFromBuffer} from 'file-type';
-import {channel} from "diagnostics_channel";
+//import {fileTypeFromBuffer} from 'file-type';
+//const fileTypeFromBuffer = require('file-type')
+//import {channel} from "diagnostics_channel";
+const channel = require('diagnostics_channel')
 
 const colors = require('colors');
 var request = require('request');
+//const {fileTypeFromBuffer} = require("file-type");
+//const getFolderSize = require("get-folder-size");
 //require('whatwg-fetch')
 
 var usersocket = []
@@ -195,7 +201,7 @@ consolas(colors.brightGreen(`Stay up-to-date at https://dcts.chat`));
 consolas(" ");
 consolas(colors.cyan(`You're running version ` + versionCode));
 
-var checkVer = await checkVersionUpdate();
+var checkVer = checkVersionUpdate();
 if(checkVer != null){
     consolas(colors.cyan.underline(`New version ${checkVer} is available!`));
     consolas(" ");
@@ -5169,3 +5175,5 @@ function findEmojiByID(id){
 
     return filename;
 }
+
+module.exports = app;
