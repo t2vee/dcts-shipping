@@ -1,4 +1,4 @@
-FROM node:21-alpine
+FROM --platform=$BUILDPLATFORM node:21-alpine
 
 RUN mkdir -p /app
 WORKDIR /app
